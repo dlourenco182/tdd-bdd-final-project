@@ -134,15 +134,15 @@ class TestProductRoutes(TestCase):
         # Uncomment this code once READ is implemented
         #
 
-        # # Check that the location header was correct
-        # response = self.client.get(location)
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # new_product = response.get_json()
-        # self.assertEqual(new_product["name"], test_product.name)
-        # self.assertEqual(new_product["description"], test_product.description)
-        # self.assertEqual(Decimal(new_product["price"]), test_product.price)
-        # self.assertEqual(new_product["available"], test_product.available)
-        # self.assertEqual(new_product["category"], test_product.category.name)
+        # Check that the location header was correct
+        response = self.client.get(location)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_product = response.get_json()
+        self.assertEqual(new_product["name"], test_product.name)
+        self.assertEqual(new_product["description"], test_product.description)
+        self.assertEqual(Decimal(new_product["price"]), test_product.price)
+        self.assertEqual(new_product["available"], test_product.available)
+        self.assertEqual(new_product["category"], test_product.category.name)
 
     def test_create_product_with_no_name(self):
         """It should not Create a Product without a name"""
@@ -166,7 +166,26 @@ class TestProductRoutes(TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
-
+    def test_get_product(self):
+        """It should Get a single Product"""
+        # get the id of a product
+        test_product = self._create_products(1)[0]
+        # make a self.client.get request to the API endpoint and store the result in the variable named response
+        response = self.client.get(f"{BASE_URL}/{test_product.id}")
+        # assert that the resp.status_code is status.HTTP_200_OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # get the data from resp.get_json()
+        new_product = response.get_json()
+        # assert that data["name"] equals the test_product.name
+        self.assertEqual(new_product["name"], test_product.name)
+    
+    def test_get_product_not_found(self):
+        """It should not Get a Product thats not found"""
+        response = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("was not found", data["message"])
+        
     ######################################################################
     # Utility functions
     ######################################################################
